@@ -57,26 +57,20 @@ main.
 % ------------------------------------------------------------------------------
 % YOUR CODE STARTS HERE
 
-% TASK 3: MODIFY THE CODE BELOW TO MAKE playerA and playerB auto-compete.
+% TASK 3: Modified to automatically play the game
+% Main loop of game, starts with playerA 
 play(Board) :-
-    get_command(Command),
-    execute_command(Command, Board, NewBoard),
-    execute_command(playerB, NewBoard, NextNewBoard),
-    play(NextNewBoard).
+    execute_command(playerA, Board, NewBoard),
+    execute_command(playerB,NewBoard,NextBoard),
+    play(NextBoard).
 
-get_command(Command) :-
-    nl, write('white move -> '),
-    read(Command), !.
+execute_command(Player,Board,NewBoard) :-
+    respond_to(Player,Board,NewBoard), !.
 
-execute_command(Move, Board, NewBoard) :-
-         parse_move(Move, From, To),
-         move(Board, From, To, white, Piece),
-         make_move(Board, From, To, NewBoard), !.
-execute_command(Player, Board, NewBoard) :-
-    respond_to(Player, Board, NewBoard), !.
-execute_command(X, Board, _) :-     % Use to catch unexpected situations
-    write('What?'),
-    halt(0).
+% If command is not recognized print an error message and terminate
+execute_command(X, Board, _) :-
+    write('Que?'),
+    halt(0). 
 
 % ------------------------------------------------------------------------------
 % YOUR CODE ENDS HERE
@@ -100,20 +94,25 @@ Rand is Number.               % Add random value to avoid deadlock
 
 % TASK 2: IMPLEMENT playerA CODE HERE
 
+%recursively calculate the strength of the board
 strengthA([state(_, _, _, _)|Board], Color, OppositeColor, Strength) :- 
 	strengthA(Board, Color, OppositeColor, Strength), !.
+
+% Check each piece on the board and calculate its value
+%Add the value of the piece to the total strength if it is of the same color
 strengthA([piece(_, Color, Type)|Board], Color, OppositeColor, Strength) :-
 	valueA(Type, Value),
 	strengthA(Board, Color, OppositeColor, PartialStrength),
 	Strength is PartialStrength + Value, !.
+% Subtract the value of the piece from the total strength if it is of the opposite color
 strengthA([piece(_, OppositeColor, Type)|Board], Color, OppositeColor, Strength) :-
 	valueA(Type, Value),
 	strengthA(Board, Color, OppositeColor, PartialStrength),
 	Strength is PartialStrength - Value.
 
+%Set search depth for alpha-beta pruning
 ply_depthA(3). 
-% Define the utility function for playerA
-% MAKE SURE that the SUM of all pieces is smaller than 32000
+% piece values, higher = more valuable
 valueA(king, 10000) :- ! .
 valueA(queen, 900) :- ! .
 valueA(rook, 500) :- ! .
@@ -121,7 +120,7 @@ valueA(night, 300) :- ! .
 valueA(bishop, 300) :- ! .
 valueA(pawn, 100) :- ! .
 
-%PlayerA book moves, black
+%this is the response to the first move of playerB
 bookA([state(white, WhiteKing, WhiteKingRook, WhiteQueenRook), %e2e4
     state(black, BlackKing, BlackKingRook, BlackQueenRook), %respond with
     piece(a-8, black, rook ), piece(b-8, black, night ), % ... e7e5
@@ -144,16 +143,23 @@ bookA([state(white, WhiteKing, WhiteKingRook, WhiteQueenRook), %e2e4
 %Code for alpha beta prunning
 %Player is playerA, Turn is the player whose turn is to play
 sufficientA(Player, Board, Turn, [], Depth, Alpha, Beta, Move, Val, Move, Val) :- !.
+
+%Base case: if Move is empty, game is over 
 sufficientA(Player, Board, Turn, Moves, Depth, Alpha, Beta, Move, Val, Move, Val) :-
     Player \== Turn, % It is the opponent turn to play, MIN node at Turn
     Val < Alpha, !. % Pruning the branch since it is not useful
+
+% If it is the Player turn to play, MAX node at Turn
 sufficientA(Player, Board, Turn, Moves, Depth, Alpha, Beta, Move, Val, Move, Val) :-
     Player = Turn, % It is the Player turn to play, MAX node at Turn
     Val > Beta, !. % Pruning the branch since it is not useful
+
+% If the above conditions are not met, we need to find the best move
 sufficientA(Player, Board, Turn, Moves, Depth, Alpha, Beta, Move, Val, BestMove, BestVal) :-
     new_bounds(Player, Turn, Alpha, Beta, Val, NewAlpha, NewBeta),
     find_best(Player, Board, Turn, Moves, Depth, NewAlpha, NewBeta, Move1, Val1),
     better_of(Player, Turn, Move, Val, Move1, Val1, BestMove, BestVal).
+
 % Code to collect moves given the current state Board
 % If Moves is empty, it should return FAIL.
 collect_movesA(Board, Color, Moves) :-
