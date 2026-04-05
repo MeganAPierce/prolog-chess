@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project implements a simplified chess engine in Prolog. It supports automated gameplay between two players using rule-based logic and alpha-beta pruning for move selection.
+This team project implements a simplified chess engine in Prolog. It supports automated gameplay between two players using rule-based logic and alpha-beta pruning for move selection.
 
 The system:
 - Represents a chess board using structured Prolog terms
