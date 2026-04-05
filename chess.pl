@@ -3,7 +3,6 @@
 
 % ------------------------------------------------------------------------------
 % Chess -- Mar. 1, 1987 	Mike Carlton
-%
 % Adapted by Yu ("Tony") Zhang for ASU CSE 259, Fall 2019
 %
 % Standard rules of chess apply with the following exceptions:
@@ -32,7 +31,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % "PlayerA" PlayerA moves first (white);
-% "PlayerB" PlayerB moves second (black))
+% "PlayerB" PlayerB moves second (black)
 %
 % You should test with both PlayerA and PlayerB
 %
